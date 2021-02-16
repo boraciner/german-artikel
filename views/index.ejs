@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p> Welcome to <%= title %> </p>
+    <% if (locals.searchedFor) { %>
+      <ul>
+      <% for (var i = 0; i < locals.searchedFor.length; i++) { %>
+        <li><%= locals.searchedFor[i] %> </li>
+      <% } %>
+      </ul>
+    <% } %>
+    
+    Keyword: <input name=keyword id="myInput" oninput="myFunction()">
+    </br>
+    <div>
+      <ul  id="list">
+
+      </ul>
+    </div>
+    </br>
+    </br>
+    </br>
+
+    <script>
+      const ws = new WebSocket("ws://localhost:3001");
+
+      function myFunction() {
+        
+        var x = document.getElementById("myInput").value;
+        console.log("ws.send ",x)
+        ws.send(x);
+      }
+      
+      ws.onmessage = function (e) {
+        data = JSON.parse(e.data)
+        console.log("Received", data)
+        mytext = ""
+         for(element of data){
+           mytext += `
+           <li>${element[0]}<span> : </span>${element[1]}</li>
+           `;
+         }
+
+
+        document.getElementById("list").innerHTML = mytext
+      };
+      ws.onclose = function (e) {
+        console.log("Disconnected", e.code);
+      };
+      ws.onerror = function (e) {
+        console.log("Error", e.data);
+      };
+    </script>
+  </body>
+</html>
